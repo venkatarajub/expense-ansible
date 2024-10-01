@@ -2,6 +2,10 @@
   hosts: backend
   become: yes
 
+  vars: 
+    mysql_root_password: ExpenseApp@1
+    login_host: mysql.vensa.online
+
   tasks:
   - name: disable default nodejs
     ansible.builtin.command: dnf module disable nodejs -y
@@ -33,3 +37,23 @@
       src: /tmp/backend.zip
       dest: /app
       remote_src: yes
+
+  - name: install dependencies
+    ansible.builtin.command: npm install
+    args:
+      chdir: /app
+
+  - name: copy the backend service
+    ansible.builtin.copy:
+      src: backend.service
+      dest: /etc/systemd/system/backend.service
+
+  - name: import mysql data
+    community.mysql.mysql_db:
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+      login_host: "{{ login_host }}"
+      target: /app/schema/backend.sql
+      name: all
+      state: dump
+      
