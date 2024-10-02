@@ -2,6 +2,7 @@
   hosts: local
   connection: local
   become: yes
+  
   vars:
     subnet_id: "subnet-05a53cd388f74ef92"
     sg_id: "sg-0bb5c6e23141d9743"
@@ -16,13 +17,14 @@
   - name: inastall ansible to boto3 and botocore
     ansible.builtin.pip:
       name:
-        - boto3
-        - botocore
+      - boto3
+      - botocore
       executable: pip3.9
-      
+
   - name: create ec2 instances
     amazon.aws.ec2_instance:
       name: "{{ item }}"
+      region: "us-east-1"
       vpc_subnet_id: "{{ subnet_id }}"
       instance_type: t2.micro
       security_group: "{{ sg_id }}"
